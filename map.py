@@ -46,6 +46,16 @@ class Map:
     def set_rabbit(self, position):
         self.rabbit = position
 
+    def clear_one_wall(self, position):
+        if not self.on_special_object("radish", position):
+            if not self.on_special_object("rabbit", position):
+                if self.on_special_object("wall", position):
+                    wall_index = self.wall.index(position)
+                    self.wall.pop(wall_index)
+
+    def clear_all_wall(self):
+        self.wall.clear()
+
     def on_special_object(self, spe_object, position):
         """
         To judge  whether the selected position is on the special object
@@ -193,17 +203,12 @@ class Map:
             self.set_wall(QPoint(temp_wall[i][0], temp_wall[i][1]))
 
 
-
-
-
-
-
-
 if  __name__ == "__main__":
     myMap = Map(5, 5)
     print(myMap.on_special_object("wall", QPoint(-1, 1)))
     print(myMap.is_valid(QPoint(-1, 1)))
     myMap.load_map("file_test.txt")
+    myMap.clear_all_wall()
     myMap.save_map("xxx.txt")
 
 
