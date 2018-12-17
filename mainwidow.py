@@ -9,6 +9,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from mylabel import Mylabel
 
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -22,7 +23,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
         # self.label_paint = QtWidgets.QLabel(self.centralwidget)
         self.label_paint = Mylabel(self.centralwidget)
-        self.label_paint.setGeometry(QtCore.QRect(10, 25, 550, 550))
+        self.label_paint.setGeometry(QtCore.QRect(10, 25, 551, 551))
         self.label_paint.setText("")
         self.label_paint.setObjectName("label_paint")
         self.pushButton_find_road = QtWidgets.QPushButton(self.centralwidget)
@@ -52,12 +53,18 @@ class Ui_MainWindow(object):
         font.setPointSize(10)
         self.label_mapsize.setFont(font)
         self.label_mapsize.setObjectName("label_mapsize")
-        self.spinBox = QtWidgets.QSpinBox(self.centralwidget)
-        self.spinBox.setGeometry(QtCore.QRect(661, 30, 51, 31))
-        self.spinBox.setObjectName("spinBox")
-        self.spinBox_2 = QtWidgets.QSpinBox(self.centralwidget)
-        self.spinBox_2.setGeometry(QtCore.QRect(721, 30, 51, 31))
-        self.spinBox_2.setObjectName("spinBox_2")
+
+        self.spinBox_width= QtWidgets.QSpinBox(self.centralwidget)
+        self.spinBox_width.setGeometry(QtCore.QRect(661, 30, 51, 31))
+        self.spinBox_width.setObjectName("spinBox_width")
+        self.spinBox_width.setValue(self.label_paint.map.width)
+        self.spinBox_width.setMinimum(1)
+        self.spinBox_height = QtWidgets.QSpinBox(self.centralwidget)
+        self.spinBox_height.setGeometry(QtCore.QRect(721, 30, 51, 31))
+        self.spinBox_height.setObjectName("spinBox_height")
+        self.spinBox_height.setValue(self.label_paint.map.height)
+        self.spinBox_height.setMinimum(1)
+
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)

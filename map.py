@@ -1,8 +1,4 @@
-import sys
-
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import QPoint
 import copy
 import numpy
 import time
@@ -15,7 +11,7 @@ class Map:
     Map(width, height)
     """
 
-    def __init__(self, width, height):
+    def __init__(self, width=8, height=8):
         self.width = width
         self.height = height
 
@@ -24,12 +20,6 @@ class Map:
 
         self.rabbit = QPoint(0, 0)
         self.radish = QPoint(width - 1, height - 1)
-        self.set_init_map()
-
-    def set_init_map(self):
-        self.set_wall(QPoint(1, 2))
-        self.set_wall(QPoint(2, 2))
-        self.set_wall(QPoint(3, 2))
 
     def set_map_size(self, width, height):
         self.width = width
@@ -113,16 +103,18 @@ class Map:
         :return:
         """
         # time.clock() to compute the running time of a_star_searching
+
+        if self.rabbit == QPoint(-1,-1) or self.radish == QPoint(-1,-1):
+            return [False]
         start_time = time.clock()
         self.path.clear()
         open_list, close_list = [], []
         # temp_point 在生成open表时有用，current_point表示目前搜索到的点
         temp_point, current_point = QPoint(), QPoint()
-        path_length = [[0 for i in range(self.width)] for j in range(self.height)]
-        parent_point = [[QPoint(-1, -1) for i in range(self.width)] for j in range(self.height)]
+        path_length = [[0 for i in range(self.height)] for j in range(self.width)]
+        parent_point = [[QPoint(-1, -1) for i in range(self.height)] for j in range(self.width)]
 
         min_cost, temp_cost, sequence= 0, 0, 0
-
         close_list.append(self.rabbit)
 
         while True:
@@ -145,7 +137,7 @@ class Map:
                                 # the temp_point changes
                                 open_list.append(copy.deepcopy(temp_point[j]))
             if len(open_list) == 0:
-                return False
+                return [False]
             # find all the distance of between points in open_list and beginning point
             for i in range(len(open_list)):
                 current_point = open_list[i]
@@ -166,46 +158,57 @@ class Map:
                 current_point = open_list[i]
                 temp_cost = path_length[current_point.x()][current_point.y()] + \
                             self.manhattan_length(current_point, self.radish)
-                if temp_cost < min_cost :
+                if temp_cost < min_cost:
                     min_cost = temp_cost
                     sequence = i
             temp_point = copy.deepcopy(open_list[sequence])
             close_list.append(temp_point)
-            if temp_point == self.radish :
+            if temp_point == self.radish:
                 while True:
                     self.path.append(copy.deepcopy(temp_point))
                     temp_point = parent_point[temp_point.x()][temp_point.y()]
                     if temp_point.x() == -1:
                         return [True, time.clock() - start_time]
 
-    def save_map(self,file_path):
+    def save_map(self, file_path):
         """
         save the map as a numpy matrix
         """
         map_matrix = [[BASE_ROAD for i in range(self.width)] for j in range(self.height)]
+        map_matrix = numpy.array(map_matrix).T
         for i in range(len(self.wall)):
             map_matrix[self.wall[i].x()][self.wall[i].y()] = WALL
         map_matrix[self.rabbit.x()][self.rabbit.y()] = RABBIT
         map_matrix[self.radish.x()][self.radish.y()] = RADISH
+
+        map_matrix = numpy.array(map_matrix).T
         numpy.savetxt(file_path, map_matrix, fmt='%d')
 
-    def load_map(self,file_path):
+    def load_map(self, file_path):
         """
         read the map from a numpy matrix
         """
-        map_matrix = numpy.loadtxt(file_path)
-        self.set_map_size(map_matrix.shape[0], map_matrix.shape[1])
-        self.set_rabbit(QPoint(numpy.argwhere(map_matrix == RABBIT)[0][0], numpy.argwhere(map_matrix == RABBIT)[0][1]))
-        self.set_radish(QPoint(numpy.argwhere(map_matrix == RADISH)[0][0], numpy.argwhere(map_matrix == RADISH)[0][1]))
+        # 加转置保证地图文件和ui画面上物品位置匹配
+        map_matrix = numpy.loadtxt(file_path, dtype=int)
+        self.path.clear()
+        self.wall.clear()
+        self.set_map_size(map_matrix.shape[1], map_matrix.shape[0])
+        # 存在才画出来
+        if len(numpy.argwhere(map_matrix == RABBIT)):
+            self.set_rabbit(QPoint(numpy.argwhere(map_matrix == RABBIT)[0][1],
+                                   numpy.argwhere(map_matrix == RABBIT)[0][0]))
+        if len(numpy.argwhere(map_matrix == RADISH)):
+            self.set_radish(QPoint(numpy.argwhere(map_matrix == RADISH)[0][1],
+                                   numpy.argwhere(map_matrix == RADISH)[0][0]))
         temp_wall = numpy.argwhere(map_matrix == WALL)
         for i in range(temp_wall.shape[0]):
-            self.set_wall(QPoint(temp_wall[i][0], temp_wall[i][1]))
+            self.set_wall(QPoint(temp_wall[i][1], temp_wall[i][0]))
 
 
 if  __name__ == "__main__":
     myMap = Map(5, 5)
     print(myMap.on_special_object("wall", QPoint(-1, 1)))
     print(myMap.is_valid(QPoint(-1, 1)))
-    myMap.load_map("file_test.txt")
+    myMap.load_map("initMap.txt")
     print(myMap.a_star_searching())
     print(myMap.path)

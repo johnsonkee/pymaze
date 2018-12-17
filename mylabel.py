@@ -1,22 +1,21 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QLabel, QApplication
+from PyQt5.QtCore import QRect, Qt
+from PyQt5.QtGui import QPaintEvent, QPainter, QPen, QColor, QBrush, QImage
 
 import sys
-import time
 
 from map import Map
 
 
 class Mylabel(QLabel):
-    def __init__(self, QWidget):
-        super(Mylabel, self).__init__()
+    def __init__(self, QWidget=None):
+        super(Mylabel, self).__init__(QWidget)
 
         # the init map is 8*8
-        self.setFixedSize(550,550)
-        self.grid_len = min(550/8, 550/8)
-        self.map = Map(8,8)
-        self.map.load_map("file_test.txt")
+        # self.setFixedSize(560,560)
+        self.map = Map(8, 8)
+
+        self.grid_len = min(550/self.map.width, 550/self.map.height)
 
     def paintEvent(self, a0: QPaintEvent):
         self.paint_line()
@@ -28,7 +27,7 @@ class Mylabel(QLabel):
     def paint_line(self):
         painter = QPainter(self)
         pen = QPen()
-        pen.setColor(QColor(0,0,0))
+        pen.setColor(QColor(0, 0, 0))
         painter.setPen(pen)
 
         for i in range(self.map.width+1):
@@ -58,7 +57,7 @@ class Mylabel(QLabel):
         # 为了不遮挡边框，这里需要加上和减去1像素的长度
         target = QRect(pos.x()*self.grid_len+1, pos.y()*self.grid_len+1,
                                    self.grid_len-1, self.grid_len-1)
-        source = QRect(0,0,500,500)
+        source = QRect(0, 0, 500, 500)
         painter.drawImage(target, rabbit_img, source)
         painter.end()
 
@@ -69,7 +68,7 @@ class Mylabel(QLabel):
         pos = self.map.radish
         target = QRect(pos.x()*self.grid_len+1, pos.y()*self.grid_len+1,
                                    self.grid_len-1, self.grid_len-1)
-        source = QRect(0,0,500,500)
+        source = QRect(0, 0, 500, 500)
         painter.drawImage(target, radish_img, source)
         painter.end()
 
@@ -80,8 +79,6 @@ class Mylabel(QLabel):
         brush.setColor(QColor(244,60,91))
         painter.setBrush(brush)
 
-        # 原先是从终点找寻到起点，现在为了直观，改成从起点到终点
-        self.map.path.reverse()
         for i in range(len(self.map.path)-2):
             pos = self.map.path[i+1]
             painter.drawRect(QRect(pos.x()*self.grid_len, pos.y()*self.grid_len,
