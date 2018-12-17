@@ -5,6 +5,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import copy
 import numpy
+import time
 
 [BASE_ROAD, WALL, RABBIT, RADISH] = [0, 1, 2, 3]
 
@@ -111,6 +112,8 @@ class Map:
         Use A* algorithm to find the best path between rabbit and radish
         :return:
         """
+        # time.clock() to compute the running time of a_star_searching
+        start_time = time.clock()
         self.path.clear()
         open_list, close_list = [], []
         # temp_point 在生成open表时有用，current_point表示目前搜索到的点
@@ -172,14 +175,12 @@ class Map:
                 while True:
                     self.path.append(copy.deepcopy(temp_point))
                     temp_point = parent_point[temp_point.x()][temp_point.y()]
-                    if temp_point.x() == -1 :
-                        return True
+                    if temp_point.x() == -1:
+                        return [True, time.clock() - start_time]
 
     def save_map(self,file_path):
         """
         save the map as a numpy matrix
-        :param file_path:
-        :return:
         """
         map_matrix = [[BASE_ROAD for i in range(self.width)] for j in range(self.height)]
         for i in range(len(self.wall)):
@@ -191,8 +192,6 @@ class Map:
     def load_map(self,file_path):
         """
         read the map from a numpy matrix
-        :param file_path:
-        :return:
         """
         map_matrix = numpy.loadtxt(file_path)
         self.set_map_size(map_matrix.shape[0], map_matrix.shape[1])
@@ -208,9 +207,5 @@ if  __name__ == "__main__":
     print(myMap.on_special_object("wall", QPoint(-1, 1)))
     print(myMap.is_valid(QPoint(-1, 1)))
     myMap.load_map("file_test.txt")
-    myMap.clear_all_wall()
-    myMap.save_map("xxx.txt")
-
-
-
-
+    print(myMap.a_star_searching())
+    print(myMap.path)
