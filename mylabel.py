@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QLabel, QApplication
 from PyQt5.QtCore import QRect, Qt
 from PyQt5.QtGui import QPaintEvent, QPainter, QPen, QColor, QBrush, QImage
+from imgs import *
 
 import sys
 
@@ -52,7 +53,7 @@ class Mylabel(QLabel):
     def paint_rabbit(self):
         painter = QPainter(self)
 
-        rabbit_img = QImage("imgs/rabbit.jpg")
+        rabbit_img = QImage(":/imgs/rabbit.jpg")
         pos = self.map.rabbit
         # 为了不遮挡边框，这里需要加上和减去1像素的长度
         target = QRect(pos.x()*self.grid_len+1, pos.y()*self.grid_len+1,
@@ -64,7 +65,7 @@ class Mylabel(QLabel):
     def paint_radish(self):
         painter = QPainter(self)
 
-        radish_img = QImage("imgs/WindowsIcon.jpg")
+        radish_img = QImage(":/imgs/WindowIcon.jpg")
         pos = self.map.radish
         target = QRect(pos.x()*self.grid_len+1, pos.y()*self.grid_len+1,
                                    self.grid_len-1, self.grid_len-1)
